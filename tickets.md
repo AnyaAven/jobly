@@ -10,6 +10,9 @@
     - Does this ignore the rest of the function or only the next line?
 3: ```set("authorization", `Bearer ${u1Token})```
     - What is happening here?
+4: users.js route
+    - why does `/users/` and `/users` both work?
+      - Probably Insomnia "Accept: */*" header
 
 # SKILLs
 1: you can change the color of your logs
