@@ -64,7 +64,7 @@ class Company {
         ORDER BY name`);
     return companiesRes.rows;
   }
-  
+
   /** Find companies by search parameters
    *  Accepts: {nameLike, minEmployees, maxEmployees} => {"net", 5, 20}
    *    nameLike: string, case-insensitive for search
@@ -73,15 +73,17 @@ class Company {
    *      All keys optional, must accept at least one
    *      Throws BadRequestError if no keys are included or
    *      if minEmployees > maxEmployees
-   * 
+   *
+   *      minEmployees and maxEmployees must be 0 or greater
+   *
    *  Returns:
    *    [{ handle, name, description, numEmployees, logoUrl, jobs }, ...]
    *    for each company that matches search parameters
    */
-  
+
   static async findBySearch({nameLike, minEmployees, maxEmployees}) {
     if (nameLike) {
-      
+
     }
   }
 
