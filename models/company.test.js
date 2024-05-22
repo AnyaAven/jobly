@@ -97,9 +97,9 @@ describe("findAll", function () {
 
 /*************************************************************** findBySearch */
 
-describe("findBySearch", function() {
-  test("works: with filters", async function() {
-    const searchParams = {nameLike: "c1", minEmployees: 1, maxEmployees: 10}
+describe("findBySearch", function () {
+  test("works: with filters", async function () {
+    const searchParams = { nameLike: "c1", minEmployees: 1, maxEmployees: 10 };
     const companies = await Company.findBySearch(searchParams);
 
     expect(companies).toEqual([{
@@ -111,17 +111,17 @@ describe("findBySearch", function() {
     }]);
   });
 
-  test("throws BadRequestError: empty search parameters", async function() {
+  test("throws BadRequestError: empty search parameters", async function () {
     try {
       await Company.findBySearch({});
       throw new Error("fail test, you shouldn't get here");
     }
-    catch(err){
+    catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy();
     }
   });
 
-  test("throws BadRequestError: minEmployees > maxEmployees", async function() {
+  test("throws BadRequestError: minEmployees > maxEmployees", async function () {
     try {
       await Company.findBySearch({
         nameLike: "c1",
@@ -129,13 +129,13 @@ describe("findBySearch", function() {
         maxEmployees: 1
       });
       throw new Error("fail test, you shouldn't get here");
-    } catch(err){
+    } catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy();
     }
   });
 
-  test("works: with only nameLike", async function(){
-    const companies = await Company.findBySearch({nameLike: "c1"});
+  test("works: with only nameLike", async function () {
+    const companies = await Company.findBySearch({ nameLike: "c1" });
     expect(companies).toEqual([{
       handle: "c1",
       name: "C1",
@@ -145,8 +145,8 @@ describe("findBySearch", function() {
     }]);
   });
 
-  test("works: with only minEmployees", async function(){
-    let companies = await Company.findBySearch({minEmployees: 2});
+  test("works: with only minEmployees", async function () {
+    let companies = await Company.findBySearch({ minEmployees: 2 });
     expect(companies).toEqual([{
       handle: "c2",
       name: "C2",
@@ -163,8 +163,8 @@ describe("findBySearch", function() {
     }]);
   });
 
-  test("works: with only minEmployees", async function(){
-    const companies = await Company.findBySearch({minEmployees: 2});
+  test("works: with only minEmployees", async function () {
+    const companies = await Company.findBySearch({ minEmployees: 2 });
     expect(companies).toEqual([{
       handle: "c2",
       name: "C2",
@@ -181,8 +181,8 @@ describe("findBySearch", function() {
     }]);
   });
 
-  test("works: with only maxEmployees", async function(){
-    const companies = await Company.findBySearch({maxEmployees: 1});
+  test("works: with only maxEmployees", async function () {
+    const companies = await Company.findBySearch({ maxEmployees: 1 });
     expect(companies).toEqual([{
       handle: "c1",
       name: "C1",
@@ -192,12 +192,60 @@ describe("findBySearch", function() {
     }]);
   });
 
-  test("works: with returning no results ", async function(){
-    const companies = await Company.findBySearch({minEmployees: 10});
+  test("works: with returning no results ", async function () {
+    const companies = await Company.findBySearch({ minEmployees: 10 });
     expect(companies).toEqual([]);
     expect(companies.length).toEqual(0);
   });
 
+  test("throws bad request: negative numbers ", async function () {
+    try {
+      await Company.findBySearch({ minEmployees: -10, maxEmployees: -1 });
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
+  test("works: Only companies that have 2 employees ", async function () {
+    const companies = await Company.findBySearch(
+      { minEmployees: 2, maxEmployees: 2 });
+
+    expect(companies).toEqual([{
+      handle: "c2",
+      name: "C2",
+      description: "Desc2",
+      numEmployees: 2,
+      logoUrl: "http://c2.img",
+    }]);
+  });
+
+  test("works: with min being 0", async function () {
+    let companies = await Company.findBySearch({minEmployees: 0});
+    expect(companies).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      },
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img",
+      },
+      {
+        handle: "c3",
+        name: "C3",
+        description: "Desc3",
+        numEmployees: 3,
+        logoUrl: "http://c3.img",
+      },
+    ]);
+  });
 });
 
 /************************************** get */
