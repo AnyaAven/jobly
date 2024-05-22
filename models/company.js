@@ -91,10 +91,8 @@ class Company {
     else if(minEmployees < 0 || maxEmployees < 0) {
       throw new BadRequestError("min and max employees must be 0 or greater");
     }
-    
-    // if nameLike is passed in, build parameter with wildcard flags
-    const nameSearchParam = nameLike ? `%${nameLike}%` : "%";
-    const companiesQuery =(`
+
+    const baseQuery =`
         SELECT handle,
                name,
                description,
@@ -102,9 +100,32 @@ class Company {
                logo_url      AS "logoUrl"
         FROM companies
         WHERE name ILIKE $1
-        GROUP BY numEmployees, name, handle, description, logoUrl`, 
-        [nameSearchParam]
-    );
+        `;
+
+    // if nameLike is passed in, build parameter with wildcard flags
+    const nameSearchParam = nameLike
+    ? `%${nameLike}%`
+    : "%";
+
+    const minEmployeeSearchParam = minEmployees ? minEmployees : 0
+    const minEmployeesWhereQuery = ` AND num_employees >= $2`
+
+    const maxEmployeesWhereQuery = maxEmployees
+    ? ` AND num_employees <= $3`
+    : ""
+
+    const orderByQuery = ` ORDER BY name, num_employees`
+
+    const fullQuery =
+      baseQuery + minEmployeesWhereQuery + maxEmployeesWhereQuery + orderByQuery;
+
+    const params = [nameSearchParam, minEmployeeSearchParam]
+    if (maxEmployees !== undefined) params.push(maxEmployees)
+
+    const companyRes = await db.query(
+      fullQuery, params)
+
+    return companyRes.rows;
   }
 
   /** Given a company handle, return data about company.
