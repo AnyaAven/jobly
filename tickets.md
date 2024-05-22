@@ -1,5 +1,6 @@
 # TICKETS
-1: Write a unit test for sqlForPartialUpdate
+1: wrote docstring for sqlForPartialUpdate
+2: Write a unit test for sqlForPartialUpdate
 
 
 
