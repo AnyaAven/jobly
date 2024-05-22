@@ -1,6 +1,15 @@
 import { BadRequestError } from "../expressError.js";
 
-// THIS NEEDS SOME GREAT DOCUMENTATION.
+/** Accepts: 
+ *    dataToUpdate: JS object of data to be updated {name: newName, ...} 
+ *    jsToSql: any necessary conversions from camelCase to snake_case:
+ *      {numEmployees: num_employees, logoUrl: logo_url}
+ * 
+ *  Returns: {setCols, values}
+ *    setCols for each key in dataToUpdate: 
+ *        {firstName: 'Aliya', age: 32} => ['"first_name"=$1', '"age"=$2']
+ *    values: values of dataToUpdate object
+*/
 
 function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   const keys = Object.keys(dataToUpdate);
