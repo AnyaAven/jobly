@@ -24,6 +24,7 @@ describe("sqlForPartialUpdate", function () {
     let result;
     try {
       result = sqlForPartialUpdate(dataToUpdate, jsToSql);
+      throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy()
     }
