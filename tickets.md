@@ -2,6 +2,7 @@
 1: wrote docstring for sqlForPartialUpdate
 2: Write a unit test for sqlForPartialUpdate
 3: add functionality for sqlForPartialUpdate
+4: refactor sqlForPartialUpdate
 
 
 # QUESTIONS
