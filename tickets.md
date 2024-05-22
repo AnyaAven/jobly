@@ -14,6 +14,8 @@
 4: users.js route
     - why does `/users/` and `/users` both work?
       - Probably Insomnia "Accept: */*" header
+5: What is `Branch` in the test:cov?
+    We are getting no coverage for errs when we run sql.test.js. What's happening?
 
 # SKILLs
 1: you can change the color of your logs
