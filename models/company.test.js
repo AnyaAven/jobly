@@ -95,6 +95,56 @@ describe("findAll", function () {
   });
 });
 
+/************************************** findBySearch */
+
+describe("findBySearch", function() {
+  test("works: with filters", async function() {
+    const searchParams = {nameLike: "c1", minEmployees: 1, maxEmployees: 10}
+    const companies = await Company.findBySearch(searchParams);
+    
+    expect(companies).toEqual([{
+      handle: "c1",
+      name: "C1",
+      description: "Desc1",
+      numEmployees: 1,
+      logoUrl: "http://c1.img",
+    }]);
+  }); 
+  
+  test("throws BadRequestError: empty search parameters", async function() {
+    try {
+      await Company.findBySearch({});
+    }
+    catch(err){
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+  
+  test("throws BadRequestError: minEmployees > maxEmployees", async function() {
+    try {
+      await Company.findBySearch({
+        nameLike: "c1", 
+        minEmployees: 2, 
+        maxEmployees: 1
+      });
+    }
+    catch(err){
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+  
+  test("works: with only nameLike", async function(){
+    let companies = await Company.findBySearch({nameLike: "c1"});
+    expect(companies).toEqual([{
+      handle: "c1",
+      name: "C1",
+      description: "Desc1",
+      numEmployees: 1,
+      logoUrl: "http://c1.img",
+    }]);
+  });
+});
+
 /************************************** get */
 
 describe("get", function () {
