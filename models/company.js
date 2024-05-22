@@ -82,9 +82,29 @@ class Company {
    */
 
   static async findBySearch({nameLike, minEmployees, maxEmployees}) {
-    if (nameLike) {
-
+    if(nameLike === undefined && minEmployees === undefined && maxEmployees === undefined) {
+      throw new BadRequestError("No parameters included");
     }
+    else if (minEmployees > maxEmployees) {
+      throw new BadRequestError("min employees must be less than max employees");
+    }
+    else if(minEmployees < 0 || maxEmployees < 0) {
+      throw new BadRequestError("min and max employees must be 0 or greater");
+    }
+    
+    // if nameLike is passed in, build parameter with wildcard flags
+    const nameSearchParam = nameLike ? `%${nameLike}%` : "%";
+    const companiesQuery =(`
+        SELECT handle,
+               name,
+               description,
+               num_employees AS "numEmployees",
+               logo_url      AS "logoUrl"
+        FROM companies
+        WHERE name ILIKE $1
+        GROUP BY numEmployees, name, handle, description, logoUrl`, 
+        [nameSearchParam]
+    );
   }
 
   /** Given a company handle, return data about company.
