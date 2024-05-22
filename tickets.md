@@ -16,12 +16,20 @@
       - Probably Insomnia "Accept: */*" header
 5: What is `Branch` in the test:cov?
     We are getting no coverage for errs when we run sql.test.js. What's happening?
+6: Why does findBySearch test throw the BadReqErr if we don't have anything written
+    for the function?
+        -  ✓ throws BadRequestError: empty search parameters
+            ✓ throws BadRequestError: minEmployees > maxEmployees
+
 
 # SKILLs
 1: you can change the color of your logs
 
 2: `expect(err instanceof BadRequestError).toBeTruthy();`
-    - Good way to test that we have the right erros
+    - Good way to test that we have the right errors
+    Force it to fail! No false positives
+    `throw new Error("fail test, you shouldn't get here");`
+
 3: helper route for common beforeEach etc.
     - _testCommon.js
 
