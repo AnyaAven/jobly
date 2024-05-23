@@ -16,6 +16,7 @@ import {
   commonBeforeAll,
   commonBeforeEach,
   u1Token,
+  u4Token,
 } from "./_testCommon.js";
 
 
@@ -35,36 +36,51 @@ describe("POST /companies", function () {
     numEmployees: 10,
   };
 
-  test("ok for users", async function () {
+  test("ok for admin users", async function () {
     const resp = await request(app)
-        .post("/companies")
-        .send(newCompany)
-        .set("authorization", `Bearer ${u1Token}`);
+      .post("/companies")
+      .send(newCompany)
+      .set("authorization", `Bearer ${u4Token}`);
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
       company: newCompany,
     });
   });
 
+  test("unauth for non-admin user", async function () {
+    const resp = await request(app)
+      .post("/companies")
+      .send(newCompany)
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+  
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+      .post("/companies")
+      .send(newCompany)
+    expect(resp.statusCode).toEqual(401);
+  });
+
   test("bad request with missing data", async function () {
     const resp = await request(app)
-        .post("/companies")
-        .send({
-          handle: "new",
-          numEmployees: 10,
-        })
-        .set("authorization", `Bearer ${u1Token}`);
+      .post("/companies")
+      .send({
+        handle: "new",
+        numEmployees: 10,
+      })
+      .set("authorization", `Bearer ${u4Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 
   test("bad request with invalid data", async function () {
     const resp = await request(app)
-        .post("/companies")
-        .send({
-          ...newCompany,
-          logoUrl: "not-a-url",
-        })
-        .set("authorization", `Bearer ${u1Token}`);
+      .post("/companies")
+      .send({
+        ...newCompany,
+        logoUrl: "not-a-url",
+      })
+      .set("authorization", `Bearer ${u4Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 });
@@ -76,29 +92,29 @@ describe("GET /companies", function () {
     const resp = await request(app).get("/companies");
     expect(resp.body).toEqual({
       companies:
-          [
-            {
-              handle: "c1",
-              name: "C1",
-              description: "Desc1",
-              numEmployees: 1,
-              logoUrl: "http://c1.img",
-            },
-            {
-              handle: "c2",
-              name: "C2",
-              description: "Desc2",
-              numEmployees: 2,
-              logoUrl: "http://c2.img",
-            },
-            {
-              handle: "c3",
-              name: "C3",
-              description: "Desc3",
-              numEmployees: 3,
-              logoUrl: "http://c3.img",
-            },
-          ],
+        [
+          {
+            handle: "c1",
+            name: "C1",
+            description: "Desc1",
+            numEmployees: 1,
+            logoUrl: "http://c1.img",
+          },
+          {
+            handle: "c2",
+            name: "C2",
+            description: "Desc2",
+            numEmployees: 2,
+            logoUrl: "http://c2.img",
+          },
+          {
+            handle: "c3",
+            name: "C3",
+            description: "Desc3",
+            numEmployees: 3,
+            logoUrl: "http://c3.img",
+          },
+        ],
     });
   });
 
@@ -180,21 +196,21 @@ describe("GET /companies", function () {
 
   test("bad request: passing in 'NaN' or 'null'- json schema", async function () {
     const resp = await request(app)
-        .get("/companies")
-        .query({ minEmployees: "null", maxEmployees: "NaN"});
+      .get("/companies")
+      .query({ minEmployees: "null", maxEmployees: "NaN" });
 
-      expect(resp.statusCode).toEqual(400);
-      expect(resp.body).toEqual(
-        {
-          "error": {
-            "message": [
-              "instance.minEmployees is not of a type(s) integer",
-              "instance.maxEmployees is not of a type(s) integer",
-            ],
-            "status": 400,
-          },
-        }
-      );
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body).toEqual(
+      {
+        "error": {
+          "message": [
+            "instance.minEmployees is not of a type(s) integer",
+            "instance.maxEmployees is not of a type(s) integer",
+          ],
+          "status": 400,
+        },
+      }
+    );
   });
 
   test("bad request: passing in words for min/max - json schema",
@@ -231,7 +247,7 @@ describe("GET /companies", function () {
         ],
         "status": 400,
       },
-    })
+    });
   });
 
 });
@@ -274,13 +290,13 @@ describe("GET /companies/:handle", function () {
 /************************************** PATCH /companies/:handle */
 
 describe("PATCH /companies/:handle", function () {
-  test("works for users", async function () {
+  test("works for admin users", async function () {
     const resp = await request(app)
       .patch(`/companies/c1`)
       .send({
         name: "C1-new",
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${u4Token}`);
     expect(resp.body).toEqual({
       company: {
         handle: "c1",
@@ -290,6 +306,16 @@ describe("PATCH /companies/:handle", function () {
         logoUrl: "http://c1.img",
       },
     });
+  });
+
+  test("unauth for non-admin user", async function () {
+    const resp = await request(app)
+      .patch(`/companies/c1`)
+      .send({
+        name: "C1-new",
+      })
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(401);
   });
 
   test("unauth for anon", async function () {
@@ -307,7 +333,7 @@ describe("PATCH /companies/:handle", function () {
       .send({
         name: "new nope",
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${u4Token}`);
     expect(resp.statusCode).toEqual(404);
   });
 
@@ -317,7 +343,7 @@ describe("PATCH /companies/:handle", function () {
       .send({
         handle: "c1-new",
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${u4Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 
@@ -327,7 +353,7 @@ describe("PATCH /companies/:handle", function () {
       .send({
         logoUrl: "not-a-url",
       })
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${u4Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 });
@@ -335,11 +361,18 @@ describe("PATCH /companies/:handle", function () {
 /************************************** DELETE /companies/:handle */
 
 describe("DELETE /companies/:handle", function () {
-  test("works for users", async function () {
+  test("works for admin users", async function () {
+    const resp = await request(app)
+      .delete(`/companies/c1`)
+      .set("authorization", `Bearer ${u4Token}`);
+    expect(resp.body).toEqual({ deleted: "c1" });
+  });
+  
+  test("unauth for non-admin user", async function(){
     const resp = await request(app)
       .delete(`/companies/c1`)
       .set("authorization", `Bearer ${u1Token}`);
-    expect(resp.body).toEqual({ deleted: "c1" });
+    expect(resp.statusCode).toEqual(401);
   });
 
   test("unauth for anon", async function () {
@@ -351,7 +384,7 @@ describe("DELETE /companies/:handle", function () {
   test("not found for no such company", async function () {
     const resp = await request(app)
       .delete(`/companies/nope`)
-      .set("authorization", `Bearer ${u1Token}`);
+      .set("authorization", `Bearer ${u4Token}`);
     expect(resp.statusCode).toEqual(404);
   });
 });
