@@ -61,12 +61,12 @@ router.get("/", async function (req, res, next) {
     return res.json({ companies });
   }
 
-  //Change min and max to numbers
+  // Change min and max to numbers
   if (queryCopy.minEmployees !== undefined) {
-    queryCopy.minEmployees = +queryCopy.minEmployees;
+    queryCopy.minEmployees = Number(queryCopy.minEmployees);
   }
   if (queryCopy.maxEmployees !== undefined) {
-    queryCopy.maxEmployees = +queryCopy.maxEmployees;
+    queryCopy.maxEmployees = Number(queryCopy.maxEmployees);
   }
 
   const validator = jsonschema.validate(
