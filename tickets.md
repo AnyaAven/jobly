@@ -3,6 +3,7 @@
 2: Write a unit test for sqlForPartialUpdate
 3: add functionality for sqlForPartialUpdate
 4: refactor sqlForPartialUpdate
+5: route test for GET /companies with query params
 
 
 # QUESTIONS
@@ -36,6 +37,8 @@
             ✓ throws BadRequestError: minEmployees > maxEmployees
         ANSWERS:  Force it to fail! No false positives
         `throw new Error("fail test, you shouldn't get here");`
+
+7: Why is `num_employees` in companies table nullable?
 
 
 # SKILLs
