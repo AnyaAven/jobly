@@ -4,6 +4,7 @@
 3: add functionality for sqlForPartialUpdate
 4: refactor sqlForPartialUpdate
 5: route test for GET /companies with query params
+6: add jsonSchema for validating data of the req.query in companies route
 
 
 # QUESTIONS
