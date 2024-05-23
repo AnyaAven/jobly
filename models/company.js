@@ -148,7 +148,7 @@ class Company {
    *
    * Returns:
    * {
-   *  whereClause:`name ILIKE `%$1%
+   *  whereClause:`name ILIKE '%$1%'
    *               AND num_employees >= $2
    *               AND num_employees <= $3`,
    *  values: ["net", 5, 20]
@@ -156,7 +156,40 @@ class Company {
   */
 
   static _getWhereClause(criteria){
+    const {nameLike, minEmployees, maxEmployees} = criteria;
+    if(
+      nameLike === undefined &&
+      minEmployees === undefined &&
+      maxEmployees === undefined) {
+      throw new BadRequestError("No parameters included");
+    }
+    if (minEmployees > maxEmployees) {
+      throw new BadRequestError("minEmployees must be less than maxEmployees");
+    }
+    if(minEmployees < 0 || maxEmployees < 0) {
+      throw new BadRequestError("min and max employees must be 0 or greater");
+    }
 
+    const criterias = Object.keys(criteria);
+
+    const seperateWhereClause = criterias.map(function (colName, idx){
+      if(colName === "nameLike"){
+        return `name ILIKE '%$${idx + 1}%'`
+      }
+      if(colName === "minEmployees"){
+        return `num_employees >= $${idx + 1}`
+      }
+      if(colName === "maxEmployees"){
+        return `num_employees <= $${idx + 1}`
+      }
+    });
+
+    const whereClause = seperateWhereClause.join(" AND ")
+
+    return {
+      whereClause,
+      values: Object.values(criteria)
+    }
   }
 
   /** Given a company handle, return data about company.
