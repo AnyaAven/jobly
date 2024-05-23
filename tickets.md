@@ -53,6 +53,8 @@
 
 7: Why is `num_employees` in companies table nullable?
     ANSWER: Watch for nullable feels! Add them to docs
+    
+8: Why do some JSON schemas have `"required": []` (empty required array)
 
 
 # SKILLs
