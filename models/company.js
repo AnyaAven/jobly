@@ -81,64 +81,22 @@ class Company {
    *    for each company that matches search parameters
    */
 
-  static async findBySearch({nameLike, minEmployees, maxEmployees}) {
-    if(nameLike === undefined && minEmployees === undefined && maxEmployees === undefined) {
-      throw new BadRequestError("No parameters included");
-    }
-    else if (minEmployees > maxEmployees) {
-      throw new BadRequestError("min employees must be less than max employees");
-    }
-    else if(minEmployees < 0 || maxEmployees < 0) {
-      throw new BadRequestError("min and max employees must be 0 or greater");
-    }
+  static async findBySearch(searchParams) {
+    const {whereClause, values} = this._getWhereClause(searchParams);
+    console.log("whereClause", whereClause);
+    console.log("values", values);
 
-    let baseQuery =`
+    let companiesRes = await db.query(`
         SELECT handle,
                name,
                description,
                num_employees AS "numEmployees",
                logo_url      AS "logoUrl"
         FROM companies
-        WHERE
-        `;
+        WHERE ${whereClause} 
+        ORDER BY name, num_employees`, values)
 
-    let parameterIdx = 1;
-    const queryArguments = [];
-
-    if (nameLike !== undefined) {
-      const nameSearchArg = `%${nameLike}%`;
-      queryArguments.push(nameSearchArg);
-      const nameSearchQuery = ` name ILIKE $${parameterIdx++}`;
-      baseQuery += nameSearchQuery;
-    }
-
-    if (minEmployees !== undefined) {
-      queryArguments.push(minEmployees);
-      const minEmployeesQuery =
-        (parameterIdx > 1)
-          ? ` AND num_employees >= $${parameterIdx++}`
-          : ` num_employees >= $${parameterIdx++}`;
-
-      baseQuery += minEmployeesQuery;
-    }
-
-    if (maxEmployees !== undefined) {
-      queryArguments.push(maxEmployees);
-      const maxEmployeesQuery =
-        (parameterIdx > 1)
-          ? ` AND num_employees <= $${parameterIdx++}`
-          : ` num_employees <= $${parameterIdx++}`;
-
-      baseQuery += maxEmployeesQuery;
-    }
-
-    const orderByQuery = ` ORDER BY name, num_employees`;
-    const fullQuery = baseQuery + orderByQuery;
-
-    const companies = await db.query(
-      fullQuery, queryArguments)
-
-    return companies.rows;
+    return companiesRes.rows;
   }
 
   /** get Where clause for findBySearch method
@@ -170,9 +128,9 @@ class Company {
       throw new BadRequestError("min and max employees must be 0 or greater");
     }
 
-    const criterias = Object.keys(criteria);
+    const criteriaKeys = Object.keys(criteria);
 
-    const seperateWhereClause = criterias.map(function (colName, idx){
+    const separateWhereClause = criteriaKeys.map(function (colName, idx){
       if(colName === "nameLike"){
         return `name ILIKE '%$${idx + 1}%'`
       }
@@ -184,7 +142,7 @@ class Company {
       }
     });
 
-    const whereClause = seperateWhereClause.join(" AND ")
+    const whereClause = separateWhereClause.join(" AND ")
 
     return {
       whereClause,
