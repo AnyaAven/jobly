@@ -240,7 +240,7 @@ describe("_getWhereClause", function () {
     expect(whereClauseAndVals).toEqual(
       {
         whereClause:
-          "name ILIKE '%$1%' AND num_employees >= $2 AND num_employees <= $3",
+          "name ILIKE '%' || $1 || '%' AND num_employees >= $2 AND num_employees <= $3",
         values: ["c1", 1, 10]
       }
     );
@@ -253,7 +253,7 @@ describe("_getWhereClause", function () {
     expect(whereClauseAndVals).toEqual(
       {
         whereClause:
-          "name ILIKE '%$1%'",
+          "name ILIKE '%' || $1 || '%'",
         values: ["c1"]
       }
     );
