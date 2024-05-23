@@ -45,36 +45,56 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * - maxEmployees (integer inclusive, should be >= 0)
  * - nameLike (will find case-insensitive, partial matches)
  *
+ * Companies with num_employees: null will not be presented if filtering
+ * by minEmployees or maxEmployees
+ *
  * Authorization required: none
  */
 
 router.get("/", async function (req, res, next) {
   let companies;
-  
+
   if (Object.keys(req.query).length > 0) {
+
+    if(!("nameLike" in req.query) &&
+      !("minEmployees" in req.query) &&
+      !("maxEmployees" in req.query)
+    ){
+      throw new BadRequestError(
+        "Can only have nameLike, minEmployees, and maxEmployees in query string"
+      );
+    }
+
+    const errs = []
     const params = {};
-    if (req.query.nameLike !== undefined) params.nameLike = req.query.nameLike;
-    if (req.query.minEmployees !== undefined) params.minEmployees = +req.query.minEmployees;
-    if (req.query.maxEmployees !== undefined) params.maxEmployees = +req.query.maxEmployees;
-    
+    if (req.query.nameLike !== undefined) {
+      params.nameLike = req.query.nameLike;
+    }
+    if (req.query.minEmployees !== undefined) {
+      params.minEmployees = +req.query.minEmployees;
+    }
+    if (req.query.maxEmployees !== undefined) {
+      params.maxEmployees = +req.query.maxEmployees;
+    }
+
     const validator = jsonschema.validate(
       params,
       compSearchParams,
       { required: true },
     );
-    
+
     if (!validator.valid) {
       const errs = validator.errors.map(e => e.stack);
       throw new BadRequestError(errs);
     }
-    
+
     companies = await Company.findBySearch(params);
   }
-  
+
   else {
     companies = await Company.findAll();
   }
-  
+
   return res.json({ companies });
 });
 
