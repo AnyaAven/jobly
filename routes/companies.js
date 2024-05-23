@@ -40,15 +40,24 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  *   { companies: [ { handle, name, description, numEmployees, logoUrl }, ...] }
  *
  * Can filter on provided search filters:
- * - minEmployees
- * - maxEmployees
+ * - minEmployees (integer inclusive, should be >= 0)
+ * - maxEmployees (integer inclusive, should be >= 0)
  * - nameLike (will find case-insensitive, partial matches)
  *
  * Authorization required: none
  */
 
 router.get("/", async function (req, res, next) {
-  const companies = await Company.findAll();
+  let companies;
+  if (req.query) {
+    console.log("findBySearch", req.query);
+    companies = await Company.findBySearch(req.query);
+  }
+  else {
+    console.log("findAll");
+    companies = await Company.findAll();
+  }
+
   return res.json({ companies });
 });
 
