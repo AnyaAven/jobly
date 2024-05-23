@@ -224,9 +224,14 @@ describe("GET /companies", function () {
       .query({ badKey: "bad value" });
 
     expect(resp.statusCode).toEqual(400);
-    expect(resp.body.error.message).toEqual(
-      "Can only have nameLike, minEmployees, and maxEmployees in query string"
-    );
+    expect(resp.body).toEqual({
+      "error": {
+        "message": [
+          "instance is not allowed to have the additional property \"badKey\"",
+        ],
+        "status": 400,
+      },
+    })
   });
 
 });
