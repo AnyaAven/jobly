@@ -71,10 +71,11 @@ class Company {
    *    minEmployees: integer, minimum employee count for search (inclusive)
    *    maxEmployees: integer, maximum employee count for search (inclusive)
    *      All keys optional, must accept at least one
-   *      Throws BadRequestError if no keys are included or
-   *      if minEmployees > maxEmployees
    *
+   *      minEmployees cannot be greater than maxEmployees
    *      minEmployees and maxEmployees must be 0 or greater
+   *      Companies with num_employees: null will not be presented if filtering
+   *        by minEmployees or maxEmployees
    *
    *  Returns:
    *    [{ handle, name, description, numEmployees, logoUrl, jobs }, ...]
@@ -99,16 +100,23 @@ class Company {
 
   /** get Where clause for findBySearch method
    *
-   * Criteria will be an object with either 1 to 3 key/value pairs.
+   * criteria will be an object with 1 to 3 key/value pairs.
    * => {nameLike, minEmployees, maxEmployees}
    *
    * Returns:
    * {
-   *  whereClause:`name ILIKE '%$1%'
+   *  whereClause:`name ILIKE '%' || $1 || '%'`
    *               AND num_employees >= $2
    *               AND num_employees <= $3`,
    *  values: ["net", 5, 20]
    * }
+   *
+   *  Throws BadRequestError if no keys are included or
+   *      if minEmployees > maxEmployees
+   *
+   *  Throws BadRequestError min and max are negative numbers
+   *
+   *  Throws BadRequestError no keys provided in criteria
   */
 
   static _getWhereClause(criteria){
