@@ -203,7 +203,7 @@ describe("findBySearch", function () {
   });
 
   test("works: with min being 0", async function () {
-    let companies = await Company.findBySearch({minEmployees: 0});
+    let companies = await Company.findBySearch({ minEmployees: 0 });
     expect(companies).toEqual([
       {
         handle: "c1",
@@ -228,6 +228,96 @@ describe("findBySearch", function () {
       },
     ]);
   });
+});
+
+/************************************** _getWhereClause */
+
+describe("_getWhereClause", function () {
+  test("works with all fields", function () {
+    const criteria = { nameLike: "c1", minEmployees: 1, maxEmployees: 10 };
+    const whereClauseAndVals = Company._getWhereClause(criteria);
+
+    expect(whereClauseAndVals).toEqual(
+      {
+        whereClause:
+          "name ILIKE `%$1% AND num_employees >= $2 AND num_employees <= $3",
+        values: ["c1", 1, 10]
+      }
+    );
+  });
+
+  test("works: with only nameLike", function () {
+    const criteria = { nameLike: "c1"};
+    const whereClauseAndVals = Company._getWhereClause(criteria);
+
+    expect(whereClauseAndVals).toEqual(
+      {
+        whereClause:
+          "name ILIKE `%$1%",
+        values: ["c1"]
+      }
+    );
+  });
+
+
+  test("works: with only minEmployees", function () {
+    const criteria = { minEmployees: 1};
+    const whereClauseAndVals = Company._getWhereClause(criteria);
+
+    expect(whereClauseAndVals).toEqual(
+      {
+        whereClause:
+          "num_employees >= $1",
+        values: [1]
+      }
+    );
+  });
+
+
+  test("works: with only maxEmployees", function () {
+    const criteria = { maxEmployees: 10 };
+    const whereClauseAndVals = Company._getWhereClause(criteria);
+
+    expect(whereClauseAndVals).toEqual(
+      {
+        whereClause:
+          "num_employees <= $1",
+        values: [10]
+      }
+    );
+  });
+
+  test("works: with min and maxEmployees", function () {
+    const criteria = { minEmployees: 1, maxEmployees: 10 };
+    const whereClauseAndVals = Company._getWhereClause(criteria);
+
+    expect(whereClauseAndVals).toEqual(
+      {
+        whereClause:
+          "num_employees >= $1 AND num_employees <= $2",
+        values: [1, 10]
+      }
+    );
+  });
+
+  test("bad request: minEmployees > maxEmployees", function () {
+    try {
+      Company._getWhereClause({minEmployees: 99, maxEmployees: 1});
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
+  test("bad request: minEmployees and maxEmployees can't be negative",
+    function () {
+      try {
+        Company._getWhereClause({minEmployees: -99, maxEmployees: -1});
+        throw new Error("fail test, you shouldn't get here");
+      } catch (err) {
+        expect(err instanceof BadRequestError).toBeTruthy();
+      }
+    });
 });
 
 /************************************** get */
