@@ -105,20 +105,128 @@ describe("GET /companies", function () {
   test("works: with filter of nameLike: 1", async function () {
     const resp = await request(app)
       .get("/companies")
-      .query({nameLike: "1"});
+      .query({ nameLike: "1" });
 
     expect(resp.body).toEqual({
       companies:
-          [
-            {
-              handle: "c1",
-              name: "C1",
-              description: "Desc1",
-              numEmployees: 1,
-              logoUrl: "http://c1.img",
-            }
-          ],
+        [
+          {
+            handle: "c1",
+            name: "C1",
+            description: "Desc1",
+            numEmployees: 1,
+            logoUrl: "http://c1.img",
+          }
+        ],
     });
+  });
+
+  test("works: with filter of minEmployees: 3", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({ minEmployees: "3" });
+
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c3",
+            name: "C3",
+            description: "Desc3",
+            numEmployees: 3,
+            logoUrl: "http://c3.img",
+          }
+        ]
+    });
+  });
+
+  test("works: with filter of maxEmployees: 1", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({ maxEmployees: "1" });
+
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c1",
+            name: "C1",
+            description: "Desc1",
+            numEmployees: 1,
+            logoUrl: "http://c1.img",
+          }
+        ],
+    });
+  });
+
+  test("bad request: passing in negative numbers - json schema",
+    async function () {
+      const resp = await request(app)
+        .get("/companies")
+        .query({ minEmployees: -99, maxEmployees: -10 });
+
+      expect(resp.statusCode).toEqual(400);
+      expect(resp.body).toEqual({
+        "error": {
+          "message": [
+            "instance.minEmployees must be greater than or equal to 0",
+            "instance.maxEmployees must be greater than or equal to 0",
+          ],
+          "status": 400,
+        },
+      });
+    }
+  );
+
+  test("bad request: passing in 'NaN' or 'null'- json schema", async function () {
+    const resp = await request(app)
+        .get("/companies")
+        .query({ minEmployees: "null", maxEmployees: "NaN"});
+
+      expect(resp.statusCode).toEqual(400);
+      expect(resp.body).toEqual(
+        {
+          "error": {
+            "message": [
+              "instance.minEmployees is not of a type(s) integer",
+              "instance.maxEmployees is not of a type(s) integer",
+            ],
+            "status": 400,
+          },
+        }
+      );
+  });
+
+  test("bad request: passing in words for min/max - json schema",
+    async function () {
+      const resp = await request(app)
+        .get("/companies")
+        .query({ minEmployees: "bad", maxEmployees: "string" });
+
+      expect(resp.statusCode).toEqual(400);
+      expect(resp.body).toEqual(
+        {
+          "error": {
+            "message": [
+              "instance.minEmployees is not of a type(s) integer",
+              "instance.maxEmployees is not of a type(s) integer",
+            ],
+            "status": 400,
+          },
+        }
+      );
+    }
+  );
+
+  test("bad request: passing invalid query string", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({ badKey: "bad value" });
+
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body.error.message).toEqual(
+      "Can only have nameLike, minEmployees, and maxEmployees in query string"
+    );
   });
 
 });
@@ -163,11 +271,11 @@ describe("GET /companies/:handle", function () {
 describe("PATCH /companies/:handle", function () {
   test("works for users", async function () {
     const resp = await request(app)
-        .patch(`/companies/c1`)
-        .send({
-          name: "C1-new",
-        })
-        .set("authorization", `Bearer ${u1Token}`);
+      .patch(`/companies/c1`)
+      .send({
+        name: "C1-new",
+      })
+      .set("authorization", `Bearer ${u1Token}`);
     expect(resp.body).toEqual({
       company: {
         handle: "c1",
@@ -181,40 +289,40 @@ describe("PATCH /companies/:handle", function () {
 
   test("unauth for anon", async function () {
     const resp = await request(app)
-        .patch(`/companies/c1`)
-        .send({
-          name: "C1-new",
-        });
+      .patch(`/companies/c1`)
+      .send({
+        name: "C1-new",
+      });
     expect(resp.statusCode).toEqual(401);
   });
 
   test("not found on no such company", async function () {
     const resp = await request(app)
-        .patch(`/companies/nope`)
-        .send({
-          name: "new nope",
-        })
-        .set("authorization", `Bearer ${u1Token}`);
+      .patch(`/companies/nope`)
+      .send({
+        name: "new nope",
+      })
+      .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(404);
   });
 
   test("bad request on handle change attempt", async function () {
     const resp = await request(app)
-        .patch(`/companies/c1`)
-        .send({
-          handle: "c1-new",
-        })
-        .set("authorization", `Bearer ${u1Token}`);
+      .patch(`/companies/c1`)
+      .send({
+        handle: "c1-new",
+      })
+      .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 
   test("bad request on invalid data", async function () {
     const resp = await request(app)
-        .patch(`/companies/c1`)
-        .send({
-          logoUrl: "not-a-url",
-        })
-        .set("authorization", `Bearer ${u1Token}`);
+      .patch(`/companies/c1`)
+      .send({
+        logoUrl: "not-a-url",
+      })
+      .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 });
@@ -224,21 +332,21 @@ describe("PATCH /companies/:handle", function () {
 describe("DELETE /companies/:handle", function () {
   test("works for users", async function () {
     const resp = await request(app)
-        .delete(`/companies/c1`)
-        .set("authorization", `Bearer ${u1Token}`);
+      .delete(`/companies/c1`)
+      .set("authorization", `Bearer ${u1Token}`);
     expect(resp.body).toEqual({ deleted: "c1" });
   });
 
   test("unauth for anon", async function () {
     const resp = await request(app)
-        .delete(`/companies/c1`);
+      .delete(`/companies/c1`);
     expect(resp.statusCode).toEqual(401);
   });
 
   test("not found for no such company", async function () {
     const resp = await request(app)
-        .delete(`/companies/nope`)
-        .set("authorization", `Bearer ${u1Token}`);
+      .delete(`/companies/nope`)
+      .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(404);
   });
 });

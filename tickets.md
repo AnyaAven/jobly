@@ -1,15 +1,12 @@
 # TICKETS
 1: DONE: wrote docstring for sqlForPartialUpdate
 2: DONE: Write a unit test for sqlForPartialUpdate
-3: add functionality for sqlForPartialUpdate
-4: refactor sqlForPartialUpdate
+3: DONE add functionality for sqlForPartialUpdate
 
-
-4.1 Build out findBySearch for Company class
-    - split into a helper function _getWhereClause()
+4.0 DONE Build out findBySearch for Company class
+    - DONE split into a helper function _getWhereClause()
     - DONE: Write out docstring for _getWhereClause()
-    - write out tests for our _getWhereClause()
-
+    - DONE write out tests for our _getWhereClause()
 
 5: route test for GET /companies with query params
 
@@ -53,7 +50,7 @@
 
 7: Why is `num_employees` in companies table nullable?
     ANSWER: Watch for nullable feels! Add them to docs
-    
+
 8: Why do some JSON schemas have `"required": []` (empty required array)
 
 
