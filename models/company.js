@@ -93,7 +93,7 @@ class Company {
                num_employees AS "numEmployees",
                logo_url      AS "logoUrl"
         FROM companies
-        WHERE ${whereClause} 
+        WHERE ${whereClause}
         ORDER BY name, num_employees`, values)
 
     return companiesRes.rows;
@@ -132,7 +132,7 @@ class Company {
 
     const separateWhereClause = criteriaKeys.map(function (colName, idx){
       if(colName === "nameLike"){
-        return `name ILIKE '%$${idx + 1}%'`
+        return `name ILIKE '%' || $${idx + 1} || '%'`
       }
       if(colName === "minEmployees"){
         return `num_employees >= $${idx + 1}`
