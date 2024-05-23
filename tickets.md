@@ -1,11 +1,23 @@
 # TICKETS
-1: wrote docstring for sqlForPartialUpdate
-2: Write a unit test for sqlForPartialUpdate
+1: DONE: wrote docstring for sqlForPartialUpdate
+2: DONE: Write a unit test for sqlForPartialUpdate
 3: add functionality for sqlForPartialUpdate
 4: refactor sqlForPartialUpdate
+
+
+4.1 Build out findBySearch for Company class
+    - split into a helper function _getWhereClause()
+    - DONE: Write out docstring for _getWhereClause()
+    - write out tests for our _getWhereClause()
+
+
 5: route test for GET /companies with query params
+
 6: add jsonSchema for validating data of the req.query in companies route
 
+7: GET / Add any finishing touches to the route to filter.
+    - `Object.keys(req.query).length > 0` make sure req.query isn't a false positive for
+    an empty {}
 
 # QUESTIONS
 1: what is the server.test.js doing?
@@ -40,6 +52,7 @@
         `throw new Error("fail test, you shouldn't get here");`
 
 7: Why is `num_employees` in companies table nullable?
+    ANSWER: Watch for nullable feels! Add them to docs
 
 
 # SKILLs
