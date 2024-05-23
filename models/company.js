@@ -91,8 +91,6 @@ class Company {
     else if(minEmployees < 0 || maxEmployees < 0) {
       throw new BadRequestError("min and max employees must be 0 or greater");
     }
-    
-    let parameterIdx = 1;
 
     let baseQuery =`
         SELECT handle,
@@ -104,6 +102,7 @@ class Company {
         WHERE 
         `;
     
+    let parameterIdx = 1;
     const queryArguments = [];
     
     if (nameLike !== undefined) {
