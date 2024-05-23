@@ -49,7 +49,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   let companies;
-  if (req.query) {
+  if (Object.keys(req.query).length > 0) {
     console.log("findBySearch", req.query);
     companies = await Company.findBySearch(req.query);
   }
@@ -57,7 +57,6 @@ router.get("/", async function (req, res, next) {
     console.log("findAll");
     companies = await Company.findAll();
   }
-
   return res.json({ companies });
 });
 
