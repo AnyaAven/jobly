@@ -99,12 +99,12 @@ class Company {
                num_employees AS "numEmployees",
                logo_url      AS "logoUrl"
         FROM companies
-        WHERE 
+        WHERE
         `;
-    
+
     let parameterIdx = 1;
     const queryArguments = [];
-    
+
     if (nameLike !== undefined) {
       const nameSearchArg = `%${nameLike}%`;
       queryArguments.push(nameSearchArg);
@@ -114,21 +114,21 @@ class Company {
 
     if (minEmployees !== undefined) {
       queryArguments.push(minEmployees);
-      const minEmployeesQuery = 
-        (parameterIdx > 1) 
-          ? ` AND num_employees >= $${parameterIdx++}` 
+      const minEmployeesQuery =
+        (parameterIdx > 1)
+          ? ` AND num_employees >= $${parameterIdx++}`
           : ` num_employees >= $${parameterIdx++}`;
-          
+
       baseQuery += minEmployeesQuery;
     }
-    
+
     if (maxEmployees !== undefined) {
       queryArguments.push(maxEmployees);
-      const maxEmployeesQuery = 
-        (parameterIdx > 1) 
-          ? ` AND num_employees <= $${parameterIdx++}` 
+      const maxEmployeesQuery =
+        (parameterIdx > 1)
+          ? ` AND num_employees <= $${parameterIdx++}`
           : ` num_employees <= $${parameterIdx++}`;
-          
+
       baseQuery += maxEmployeesQuery;
     }
 
@@ -139,6 +139,24 @@ class Company {
       fullQuery, queryArguments)
 
     return companies.rows;
+  }
+
+  /** get Where clause for findBySearch method
+   *
+   * Criteria will be an object with either 1 to 3 key/value pairs.
+   * => {nameLike, minEmployees, maxEmployees}
+   *
+   * Returns:
+   * {
+   *  whereClause:`name ILIKE `%$1%
+   *               AND num_employees >= $2
+   *               AND num_employees <= $3`,
+   *  values: ["net", 5, 20]
+   * }
+  */
+
+  static _getWhereClause(criteria){
+
   }
 
   /** Given a company handle, return data about company.
