@@ -8,6 +8,7 @@ import { ensureLoggedIn } from "../middleware/auth.js";
 import Company from "../models/company.js";
 import compNewSchema from "../schemas/compNew.json" with { type: "json" };
 import compUpdateSchema from "../schemas/compUpdate.json" with { type: "json" };
+import compSearchParams from "../schemas/compSearchParams.json" with { type: "json" };
 
 const router = new Router();
 
@@ -49,14 +50,31 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   let companies;
+  
   if (Object.keys(req.query).length > 0) {
-    console.log("findBySearch", req.query);
-    companies = await Company.findBySearch(req.query);
+    const params = {};
+    if (req.query.nameLike !== undefined) params.nameLike = req.query.nameLike;
+    if (req.query.minEmployees !== undefined) params.minEmployees = +req.query.minEmployees;
+    if (req.query.maxEmployees !== undefined) params.maxEmployees = +req.query.maxEmployees;
+    
+    const validator = jsonschema.validate(
+      params,
+      compSearchParams,
+      { required: true },
+    );
+    
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
+    }
+    
+    companies = await Company.findBySearch(params);
   }
+  
   else {
-    console.log("findAll");
     companies = await Company.findAll();
   }
+  
   return res.json({ companies });
 });
 
