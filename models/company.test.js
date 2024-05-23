@@ -318,6 +318,17 @@ describe("_getWhereClause", function () {
         expect(err instanceof BadRequestError).toBeTruthy();
       }
     });
+
+
+  test("throws BadRequestError: empty search parameters", async function () {
+    try {
+      Company._getWhereClause({});
+      throw new Error("fail test, you shouldn't get here");
+    }
+    catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
 });
 
 /************************************** get */
