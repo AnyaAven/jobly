@@ -101,6 +101,26 @@ describe("GET /companies", function () {
           ],
     });
   });
+
+  test("works: with filter of nameLike: 1", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({nameLike: "1"});
+
+    expect(resp.body).toEqual({
+      companies:
+          [
+            {
+              handle: "c1",
+              name: "C1",
+              description: "Desc1",
+              numEmployees: 1,
+              logoUrl: "http://c1.img",
+            }
+          ],
+    });
+  });
+
 });
 
 /************************************** GET /companies/:handle */
