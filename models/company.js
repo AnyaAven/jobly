@@ -91,41 +91,55 @@ class Company {
     else if(minEmployees < 0 || maxEmployees < 0) {
       throw new BadRequestError("min and max employees must be 0 or greater");
     }
+    
+    let parameterIdx = 1;
 
-    const baseQuery =`
+    let baseQuery =`
         SELECT handle,
                name,
                description,
                num_employees AS "numEmployees",
                logo_url      AS "logoUrl"
         FROM companies
-        WHERE name ILIKE $1
+        WHERE 
         `;
+    
+    const queryArguments = [];
+    
+    if (nameLike !== undefined) {
+      const nameSearchArg = `%${nameLike}%`;
+      queryArguments.push(nameSearchArg);
+      const nameSearchQuery = ` name ILIKE $${parameterIdx++}`;
+      baseQuery += nameSearchQuery;
+    }
 
-    // if nameLike is passed in, build parameter with wildcard flags
-    const nameSearchParam = nameLike
-    ? `%${nameLike}%`
-    : "%";
+    if (minEmployees !== undefined) {
+      queryArguments.push(minEmployees);
+      const minEmployeesQuery = 
+        (parameterIdx > 1) 
+          ? ` AND num_employees >= $${parameterIdx++}` 
+          : ` num_employees >= $${parameterIdx++}`;
+          
+      baseQuery += minEmployeesQuery;
+    }
+    
+    if (maxEmployees !== undefined) {
+      queryArguments.push(maxEmployees);
+      const maxEmployeesQuery = 
+        (parameterIdx > 1) 
+          ? ` AND num_employees <= $${parameterIdx++}` 
+          : ` num_employees <= $${parameterIdx++}`;
+          
+      baseQuery += maxEmployeesQuery;
+    }
 
-    const minEmployeeSearchParam = minEmployees ? minEmployees : 0
-    const minEmployeesWhereQuery = ` AND num_employees >= $2`
+    const orderByQuery = ` ORDER BY name, num_employees`;
+    const fullQuery = baseQuery + orderByQuery;
 
-    const maxEmployeesWhereQuery = maxEmployees
-    ? ` AND num_employees <= $3`
-    : ""
+    const companies = await db.query(
+      fullQuery, queryArguments)
 
-    const orderByQuery = ` ORDER BY name, num_employees`
-
-    const fullQuery =
-      baseQuery + minEmployeesWhereQuery + maxEmployeesWhereQuery + orderByQuery;
-
-    const params = [nameSearchParam, minEmployeeSearchParam]
-    if (maxEmployees !== undefined) params.push(maxEmployees)
-
-    const companyRes = await db.query(
-      fullQuery, params)
-
-    return companyRes.rows;
+    return companies.rows;
   }
 
   /** Given a company handle, return data about company.
