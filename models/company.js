@@ -83,8 +83,6 @@ class Company {
 
   static async findBySearch(searchParams) {
     const {whereClause, values} = this._getWhereClause(searchParams);
-    console.log("whereClause", whereClause);
-    console.log("values", values);
 
     let companiesRes = await db.query(`
         SELECT handle,
