@@ -16,6 +16,61 @@
     - `Object.keys(req.query).length > 0` make sure req.query isn't a false positive for
     an empty {}
 
+8: Add ensureAdmin to middleware
+```js
+
+/** Require admin user or raise 401 */
+
+function ensureAdmin(req, res, next) {
+  const user = res.locals.user;
+  if (user && user.isAdmin === True) {
+    return next();
+  }
+  throw new UnauthorizedError();
+}
+
+```
+
+9: /companies update the docstrings for all routes that require being an admin
+
+10: /companies update tests to reflect admin checks
+
+11: in helpers/sql.js
+    - Specify at a high level what is going on and why we need it
+
+12: DONE: in company.test.js for models
+    - Add test for empty {} that throws 400
+```js
+
+  test("throws BadRequestError: empty search parameters", async function () {
+    try {
+      await Company._getWhereClause({});
+      throw new Error("fail test, you shouldn't get here");
+    }
+    catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
+```
+
+13: organize tests with describe of failures
+    Describes can be nested and can be organized as follows
+    - Working
+    - Edge cases
+    - 400's
+
+14: DONE in companies route:
+    - Invert the `if (Object.keys(req.query).length > 0)`
+    That way the else is not forgotten by the time we read 50 lines of code.
+
+15: DONE We can copy the req.query and then pass that to our json validator
+    - We can copy this as `const query = req.query;`
+    because Express has a getter for query that returns a new object NOT a reference to req.query!
+    - Then we can get rid of a lot of if cases and only keep the Number() change
+
+
+
 # QUESTIONS
 1: what is the server.test.js doing?
     - Why would it crash?
