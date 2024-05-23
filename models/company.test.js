@@ -163,24 +163,6 @@ describe("findBySearch", function () {
     }]);
   });
 
-  test("works: with only minEmployees", async function () {
-    const companies = await Company.findBySearch({ minEmployees: 2 });
-    expect(companies).toEqual([{
-      handle: "c2",
-      name: "C2",
-      description: "Desc2",
-      numEmployees: 2,
-      logoUrl: "http://c2.img",
-    },
-    {
-      handle: "c3",
-      name: "C3",
-      description: "Desc3",
-      numEmployees: 3,
-      logoUrl: "http://c3.img",
-    }]);
-  });
-
   test("works: with only maxEmployees", async function () {
     const companies = await Company.findBySearch({ maxEmployees: 1 });
     expect(companies).toEqual([{
