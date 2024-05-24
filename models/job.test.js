@@ -26,18 +26,18 @@ afterAll(commonAfterAll);
 
 /************************************** create */
 
-describe("create", function() {
+describe("create", function () {
   const newJob = {
     title: "new",
     salary: 100000,
-    equity: 0.25,
+    equity: "0.25",
     companyHandle: "c1",
   };
-  
-  test("works", async function(){
+
+  test("works", async function () {
     let job = await Job.create(newJob);
     expect(job).toEqual(newJob);
-    
+
     const result = await db.query(
       `SELECT id, title, salary, equity, company_handle
       FROM jobs
@@ -55,3 +55,12 @@ describe("create", function() {
 });
 
 /************************************** findAll */
+
+describe("findAll", function () {
+
+  test("works: no filter", async function () {
+    const jobs = await Job.findAll();
+
+    expect(jobs).toEqual([])
+  });
+});
