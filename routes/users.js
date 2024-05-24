@@ -3,7 +3,8 @@
 import jsonschema from "jsonschema";
 import { Router } from "express";
 
-import { ensureLoggedIn, ensureAdmin, ensureCorrectUserOrAdmin } from "../middleware/auth.js";
+import { ensureLoggedIn, ensureAdmin, ensureCorrectUserOrAdmin }
+  from "../middleware/auth.js";
 import { BadRequestError } from "../expressError.js";
 import User from "../models/user.js";
 import { createToken } from "../helpers/tokens.js";
