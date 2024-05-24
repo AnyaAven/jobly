@@ -49,6 +49,15 @@
 
 18: DONE: change `u4Token` to `adminToken`
 
+19: add tests for job model
+
+20: make model for job
+    Requirements:
+        - Updating a job should never change the ID of a job, nor the company associated with a job.
+
+21: add tests for job routes
+
+21: add routes for jobs
 
 # QUESTIONS
 1: what is the server.test.js doing?
@@ -86,10 +95,14 @@
     ANSWER: Watch for nullable feels! Add them to docs
 
 8: Why do some JSON schemas have `"required": []` (empty required array)
+    ANSWER: For clarification for other devs working on the project
 
 9: Should ensureAdmin also check if a user is logged in?
     ANSWER: yes, it's a valid choice. Reduces the amount of middleware needed
     to validate an admin user, and avoids issues of middleware function order.
+
+10: How do we use ``istanbul``?
+    ANSWER: we don't! that was for `jest` and we are now using v8. We can use  `/* v8 ignore next 3 */`
 
 
 # SKILLs
@@ -123,3 +136,15 @@ async function commonAfterEach() {
 ```
 
 4: You can change the source control to view as tree
+
+5: testing next()
+
+``` js
+//import vi from vitest
+function innerNext(err) {
+  if (err) throw new Error("Got error from middleware");
+}
+// make me a function, this will auto spy on innerNext, and confirm that
+// next ran x amount of times in the tested middleware function.
+const next = vi.fn(innerNext)
+```
