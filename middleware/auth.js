@@ -2,7 +2,7 @@
 
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../config.js";
-import { UnauthorizedError} from "../expressError.js";
+import { UnauthorizedError } from "../expressError.js";
 
 
 /** Middleware: Authenticate user.
@@ -39,7 +39,10 @@ function ensureLoggedIn(req, res, next) {
 }
 
 
-/** Require admin user or raise 401 */
+/** Middleware to use when the logged in user must be an admin. 
+ * 
+ * If not, raises Unauthorized. 
+*/
 
 function ensureAdmin(req, res, next) {
   const user = res.locals.user;
@@ -50,8 +53,25 @@ function ensureAdmin(req, res, next) {
 }
 
 
+/** Middleware to use when the logged in user must either be an admin 
+ *  or match the user being modified.
+*/
+function ensureCorrectUserOrAdmin(req, res, next) {
+  const currentUser = res.locals.user;
+  const hasUnauthorizedUsername = currentUser?.username !== req.params.username;
+  
+  if(currentUser.isAdmin) return next();
+
+  if (!currentUser || hasUnauthorizedUsername) {
+    throw new UnauthorizedError();
+  }
+
+  return next();
+}
+
 export {
   authenticateJWT,
   ensureLoggedIn,
-  ensureAdmin
+  ensureAdmin,
+  ensureCorrectUserOrAdmin
 };
