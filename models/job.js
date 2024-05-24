@@ -42,7 +42,7 @@ class Job {
               equity,
               company_handle AS "companyHandle"
       FROM jobs
-      ORDER BY companyHandle, title, salary, equity, id`
+      ORDER BY company_handle, title, salary, equity, id`
     );
     return jobsRes.rows;
   }
