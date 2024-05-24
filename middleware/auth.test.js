@@ -5,13 +5,14 @@ import { UnauthorizedError } from "../expressError.js";
 import {
   authenticateJWT,
   ensureLoggedIn,
-  ensureAdmin
+  ensureAdmin,
+  ensureCorrectUserOrAdmin,
 } from "./auth.js";
 import { SECRET_KEY } from "../config.js";
 
 const testJwt = jwt.sign({ username: "test", isAdmin: false }, SECRET_KEY);
 const badJwt = jwt.sign({ username: "test", isAdmin: false }, "wrong");
-const adminJwt = jwt.sign({ username: "test", isAdmin: true}, SECRET_KEY);
+const adminJwt = jwt.sign({ username: "test", isAdmin: true }, SECRET_KEY);
 
 function next(err) {
   if (err) throw new Error("Got error from middleware");
@@ -58,35 +59,73 @@ describe("ensureLoggedIn", function () {
     const req = {};
     const res = { locals: {} };
     expect(() => ensureLoggedIn(req, res, next))
-        .toThrow(UnauthorizedError);
+      .toThrow(UnauthorizedError);
   });
 
   test("unauth if no valid login", function () {
     const req = {};
-    const res = { locals: { user: { } } };
+    const res = { locals: { user: {} } };
     expect(() => ensureLoggedIn(req, res, next))
-        .toThrow(UnauthorizedError);
+      .toThrow(UnauthorizedError);
   });
 });
 
-describe("ensureAdmin", function (){
-  test("works", function(){
+describe("ensureAdmin", function () {
+  test("works", function () {
     const req = {};
-    const res = { locals: {user: {isAdmin: true} } };
+    const res = { locals: { user: { isAdmin: true } } };
     ensureAdmin(req, res, next);
   });
-  
-  test("unauth if not admin", function(){
+
+  test("unauth if not admin", function () {
     const req = {};
-    const res = { locals: {user: {isAdmin: false} } };
+    const res = { locals: { user: { isAdmin: false } } };
     expect(() => ensureAdmin(req, res, next))
-    .toThrow(UnauthorizedError);
+      .toThrow(UnauthorizedError);
   });
-  
+
   test("unauth if no user logged in", function () {
     const req = {};
-    const res = { locals: { } };
+    const res = { locals: {} };
     expect(() => ensureAdmin(req, res, next))
-        .toThrow(UnauthorizedError);
+      .toThrow(UnauthorizedError);
   });
-})
+});
+
+describe("ensureCorrectUserOrAdmin", function () {
+
+  describe("works", function () {
+
+    test("works as current user", function () {
+      const req = { params: { username: "matchingUser" } };
+      const res = { locals: { user: { username: "matchingUser" } } };
+      ensureCorrectUserOrAdmin(req, res, next);
+    });
+
+    test("works as admin", function () {
+      const req = { params: { username: "user we are trying to modify" } };
+      const res = { locals: { user: { username: "admin", isAdmin: true } } };
+      ensureCorrectUserOrAdmin(req, res, next);
+    });
+
+  });
+
+  describe("401 Unauthorized", function () {
+
+    test("if we aren't logged in ", function () {
+      const req = { params: { username: "user we are trying to modify" } };
+      const res = { locals: {} };
+      expect(() => ensureCorrectUserOrAdmin(req, res, next))
+        .toThrow(UnauthorizedError);
+    });
+
+    test("not the current user or admin", function () {
+      const req = { params: { username: "user we are trying to modify" } };
+      const res = { locals: { user: { username: "no match", isAdmin: false } } };
+      expect(() => ensureCorrectUserOrAdmin(req, res, next))
+        .toThrow(UnauthorizedError);
+    });
+
+  });
+
+});
