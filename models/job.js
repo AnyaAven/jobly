@@ -92,7 +92,7 @@ class Job {
    * {
    *  whereClause:`title ILIKE '%' || $1 || '%'`
    *               AND salary >= $2
-   *               AND equity > 0`,
+   *               AND equity >= 0`,
    *  values: ["dev", 70000, true]
    * }
    *
@@ -102,41 +102,41 @@ class Job {
   */
 
   static _getWhereClause(criteria){
-    // const {nameLike, minEmployees, maxEmployees} = criteria;
-    // // TODO: can we use the json validator here?
-    // // if(
-    // //   nameLike === undefined &&
-    // //   minEmployees === undefined &&
-    // //   maxEmployees === undefined) {
-    // //   throw new BadRequestError("No parameters included");
-    // // }
-    // // if (minEmployees > maxEmployees) {
-    // //   throw new BadRequestError("minEmployees must be less than maxEmployees");
-    // // }
-    // // if(minEmployees < 0 || maxEmployees < 0) {
-    // //   throw new BadRequestError("min and max employees must be 0 or greater");
-    // // }
+    const criteriaCopy = {...criteria}
 
-    // const criteriaKeys = Object.keys(criteria);
+    const validator = jsonschema.validate(
+      criteriaCopy,
+      jobSearchParams,
+      { required: true },
+    );
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
+    }
 
-    // const separateWhereClause = criteriaKeys.map(function (colName, idx){
-    //   if(colName === "nameLike"){
-    //     return `name ILIKE '%' || $${idx + 1} || '%'`
-    //   }
-    //   if(colName === "minEmployees"){
-    //     return `num_employees >= $${idx + 1}`
-    //   }
-    //   if(colName === "maxEmployees"){
-    //     return `num_employees <= $${idx + 1}`
-    //   }
-    // });
+    const criteriaKeys = Object.keys(criteriaCopy);
+    if(criteriaCopy?.hasEquity !== true){
+      delete criteriaCopy.hasEquity
+    }
 
-    // const whereClause = separateWhereClause.join(" AND ")
+    const separateWhereClause = criteriaKeys.map(function (colName, idx){
+      if(colName === "title"){
+        return `title ILIKE '%' || $${idx + 1} || '%'`
+      }
+      if(colName === "minSalary"){
+        return `salary >= $${idx + 1}`
+      }
+      if(colName === "hasEquity"){
+        return `equity >= 0 $${idx + 1}`
+      }
+    });
 
-    // return {
-    //   whereClause,
-    //   values: Object.values(criteria)
-    // }
+    const whereClause = separateWhereClause.join(" AND ")
+
+    return {
+      whereClause,
+      values: Object.values(criteriaCopy)
+    }
   }
 
 
