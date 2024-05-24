@@ -126,6 +126,13 @@ describe("ensureCorrectUserOrAdmin", function () {
         .toThrow(UnauthorizedError);
     });
 
+    test("isAdmin can't be truthy, must be true", function () {
+      const req = { params: { username: "yes" } };
+      const res = { locals: { user: { username: "no", isAdmin: "true" } } };
+      expect(() => ensureCorrectUserOrAdmin(req, res, next))
+        .toThrow(UnauthorizedError);
+    });
+
   });
 
 });
