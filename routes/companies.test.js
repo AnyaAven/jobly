@@ -16,7 +16,7 @@ import {
   commonBeforeAll,
   commonBeforeEach,
   u1Token,
-  u4Token as adminToken,
+  adminToken,
 } from "./_testCommon.js";
 
 
