@@ -108,6 +108,10 @@ function ensureAdmin(req, res, next) {
 
 8: Why do some JSON schemas have `"required": []` (empty required array)
 
+9: Should ensureAdmin also check if a user is logged in?
+    ANSWER: yes, it's a valid choice. Reduces the amount of middleware needed
+    to validate an admin user, and avoids issues of middleware function order. 
+
 
 # SKILLs
 1: you can change the color of your logs
