@@ -8,51 +8,25 @@
     - DONE: Write out docstring for _getWhereClause()
     - DONE write out tests for our _getWhereClause()
 
-5: route test for GET /companies with query params
+5: DONE route test for GET /companies with query params
 
-6: add jsonSchema for validating data of the req.query in companies route
+6: DONE add jsonSchema for validating data of the req.query in companies route
 
 7: GET / Add any finishing touches to the route to filter.
     - `Object.keys(req.query).length > 0` make sure req.query isn't a false positive for
     an empty {}
 
-8: Add ensureAdmin to middleware
-```js
+8: DONE Add ensureCorrectUserOrAdmin to middleware
 
-/** Require admin user or raise 401 */
+9: DONE /companies update the docstrings for all routes that require being an admin
 
-function ensureAdmin(req, res, next) {
-  const user = res.locals.user;
-  if (user && user.isAdmin === True) {
-    return next();
-  }
-  throw new UnauthorizedError();
-}
+10: DONE /companies update tests to reflect admin checks
 
-```
-
-9: /companies update the docstrings for all routes that require being an admin
-
-10: /companies update tests to reflect admin checks
-
-11: in helpers/sql.js
+11: TODO: in helpers/sql.js
     - Specify at a high level what is going on and why we need it
 
 12: DONE: in company.test.js for models
     - Add test for empty {} that throws 400
-```js
-
-  test("throws BadRequestError: empty search parameters", async function () {
-    try {
-      await Company._getWhereClause({});
-      throw new Error("fail test, you shouldn't get here");
-    }
-    catch (err) {
-      expect(err instanceof BadRequestError).toBeTruthy();
-    }
-  });
-
-```
 
 13: organize tests with describe of failures
     Describes can be nested and can be organized as follows
@@ -69,6 +43,9 @@ function ensureAdmin(req, res, next) {
     because Express has a getter for query that returns a new object NOT a reference to req.query!
     - Then we can get rid of a lot of if cases and only keep the Number() change
 
+16: DONE Update the /users docstrings and add middleware
+
+17: Add corrected tests for routes/users.test.js
 
 
 # QUESTIONS
@@ -110,7 +87,7 @@ function ensureAdmin(req, res, next) {
 
 9: Should ensureAdmin also check if a user is logged in?
     ANSWER: yes, it's a valid choice. Reduces the amount of middleware needed
-    to validate an admin user, and avoids issues of middleware function order. 
+    to validate an admin user, and avoids issues of middleware function order.
 
 
 # SKILLs
