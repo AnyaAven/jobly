@@ -8,7 +8,7 @@ import { UnauthorizedError } from "../expressError.js";
 /** Middleware: Authenticate user.
  *
  * If a token was provided, verify it, and, if valid, store the token payload
- * on res.locals (this will include the username and isAdmin field.)
+ * on res.locals.user (this will include the username and isAdmin field.)
  *
  * It's not an error if no token was provided or if the token is not valid.
  */
@@ -55,18 +55,24 @@ function ensureAdmin(req, res, next) {
 
 /** Middleware to use when the logged in user must either be an admin
  *  or match the user being modified.
+ *
+ * To match users correctly, the locals.user must match the username URL param:
+ * res.locals.user.username === req.params.username
+ *
+ * Otherwise, the user may be an admin:
+ * res.locals.user.isAdmin === true
 */
 function ensureCorrectUserOrAdmin(req, res, next) {
+
   const currentUser = res.locals.user;
-  const hasUnauthorizedUsername = currentUser?.username !== req.params.username;
+  if (currentUser === undefined) throw new UnauthorizedError();
 
-  if(currentUser?.isAdmin) return next();
+  const isMatchingAuthUser = currentUser.username === req.params.username;
+  if (isMatchingAuthUser) { return next(); }
 
-  if (!currentUser || hasUnauthorizedUsername) {
-    throw new UnauthorizedError();
-  }
+  if (currentUser.isAdmin === true) { return next(); }
 
-  return next();
+  throw new UnauthorizedError();
 }
 
 export {
