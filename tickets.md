@@ -45,9 +45,9 @@
 
 16: DONE Update the /users docstrings and add middleware
 
-17: Add corrected tests for routes/users.test.js
+17: DONE Add corrected tests for routes/users.test.js
 
-18: change `u4Token` to `adminToken`
+18: DONE: change `u4Token` to `adminToken`
 
 
 # QUESTIONS
