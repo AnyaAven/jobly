@@ -39,9 +39,9 @@ function ensureLoggedIn(req, res, next) {
 }
 
 
-/** Middleware to use when the logged in user must be an admin. 
- * 
- * If not, raises Unauthorized. 
+/** Middleware to use when the logged in user must be an admin.
+ *
+ * If not, raises Unauthorized.
 */
 
 function ensureAdmin(req, res, next) {
@@ -53,14 +53,14 @@ function ensureAdmin(req, res, next) {
 }
 
 
-/** Middleware to use when the logged in user must either be an admin 
+/** Middleware to use when the logged in user must either be an admin
  *  or match the user being modified.
 */
 function ensureCorrectUserOrAdmin(req, res, next) {
   const currentUser = res.locals.user;
   const hasUnauthorizedUsername = currentUser?.username !== req.params.username;
-  
-  if(currentUser.isAdmin) return next();
+
+  if(currentUser?.isAdmin) return next();
 
   if (!currentUser || hasUnauthorizedUsername) {
     throw new UnauthorizedError();
